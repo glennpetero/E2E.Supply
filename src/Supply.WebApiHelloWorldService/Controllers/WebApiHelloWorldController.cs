@@ -24,6 +24,14 @@ namespace Amsoftware.E2E.Supply.WebApiHelloWorldService.Controllers
             _logger = logger;
         }
 
+        
+        [HttpGet]             
+        public Task<IActionResult> GetHelloWorld()
+        {           
+            return Task.FromResult((IActionResult)Ok("Hello World!"));
+        }
+
+
         /// <summary>
         /// Gets the economic order quantity for the specified request values.
         /// </summary>
