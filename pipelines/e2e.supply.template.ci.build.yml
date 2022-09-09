@@ -1,0 +1,54 @@
+# (c) American Software, Inc. All rights reserved.
+#
+# E2E.Supply.Template continuous integration build pipeline
+#
+# This pipeline is triggered on commits to issue/* and main branches
+#
+# Steps in this pipeline:
+# 1. Installs and executes gitversion pipeline task used to set the version properties for this build
+# 2. Ensures the .net 60 sdk is used for builds
+# 3. Restores nuget dependencies for projects referenced in the solution file
+# 4. Packages the project as nuget package
+# 5. Pushes all published items into the build artifacts 
+#
+
+trigger:
+- main
+- issue/*
+- rel/*
+
+pool:
+  name: Default-Linux
+
+variables:
+  PackageProjects: './Supply.ServiceTemplate.csproj'
+
+steps:
+- task: gitversion/setup@0
+  displayName: Install GitVersion
+  inputs:
+    versionSpec: '5.x'
+- task: gitversion/execute@0
+  displayName: Execute GitVersion
+
+- task: UseDotNet@2
+  displayName: 'Use .net 6 sdk'
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.x'
+    includePreviewVersions: false
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack'
+  inputs:
+    command: pack
+    packagesToPack: '$(PackageProjects)'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'GitVersion.NuGetVersion'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+    ArtifactName: 'NuGetPackage'
+    publishLocation: 'Container'

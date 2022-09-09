@@ -1,0 +1,80 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6F0082BA-8D40-4AB1-B62D-C619102AA1A2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Supply.WebApiHelloWorldService", "src\Supply.WebApiHelloWorldService\Supply.WebApiHelloWorldService.csproj", "{D767EB7F-9C4F-45A0-8A29-87327087D5F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests.unit", "tests.unit", "{F6C544B4-E973-4E35-9E22-3E78741605B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Supply.WebApiHelloWorldService.Tests", "tests.unit\Supply.WebApiHelloWorldService.Tests\Supply.WebApiHelloWorldService.Tests.csproj", "{189005AB-67DC-4EDA-AE21-58AA5555DFB1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5DD09AA6-4197-4C0B-950E-88ABE8DA7FF3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{0F377121-698F-4874-9945-F2EF198F8942}"
+	ProjectSection(SolutionItems) = preProject
+		docker\WebApiHelloWorldService.linux.Dockerfile = docker\WebApiHelloWorldService.linux.Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{BC73524C-EBD1-4B64-8922-4B640E23C6FD}"
+	ProjectSection(SolutionItems) = preProject
+		pipelines\e2e.supply.ci.build.yml = pipelines\e2e.supply.ci.build.yml
+		pipelines\e2e.supply.webapihelloworld.docker.build.yml = pipelines\e2e.supply.webapihelloworld.docker.build.yml
+		pipelines\e2e.supply.template.ci.build.yml = pipelines\e2e.supply.template.ci.build.yml
+		pipelines\e2e.supply.veracode.yml = pipelines\e2e.supply.veracode.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Debug|x64.Build.0 = Debug|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Debug|x86.Build.0 = Debug|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Release|x64.ActiveCfg = Release|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Release|x64.Build.0 = Release|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Release|x86.ActiveCfg = Release|Any CPU
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3}.Release|x86.Build.0 = Release|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Debug|x64.Build.0 = Debug|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Debug|x86.Build.0 = Debug|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Release|x64.ActiveCfg = Release|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Release|x64.Build.0 = Release|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Release|x86.ActiveCfg = Release|Any CPU
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D767EB7F-9C4F-45A0-8A29-87327087D5F3} = {6F0082BA-8D40-4AB1-B62D-C619102AA1A2}
+		{189005AB-67DC-4EDA-AE21-58AA5555DFB1} = {F6C544B4-E973-4E35-9E22-3E78741605B1}
+		{0F377121-698F-4874-9945-F2EF198F8942} = {5DD09AA6-4197-4C0B-950E-88ABE8DA7FF3}
+		{BC73524C-EBD1-4B64-8922-4B640E23C6FD} = {5DD09AA6-4197-4C0B-950E-88ABE8DA7FF3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1E8CA556-3D9D-4509-8ED7-C8826FD7184A}
+	EndGlobalSection
+EndGlobal

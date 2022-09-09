@@ -1,0 +1,75 @@
+#
+# E2E.Supply Integation pipeline
+#
+# Builds supply webapihelloworld service
+# Sends it to Veracode for security sandbox scan
+#
+# Triggers on completion of the CI build on the main branch
+#
+trigger: none
+
+# Run Saturday at 04:00 UTC even if no code changes since last run
+# See https://confluence.amsoftware.com/x/RxggAQ
+schedules:
+- cron: "0 4 * * 6"
+  displayName: "Weekly scheduled scan"
+  branches:
+    include:
+    - main
+    - rel/*
+  always: true
+
+resources:
+  pipelines:
+  - pipeline: e2e-supply-ci-build
+    source: e2e.supply.ci.build  # Name of the pipeline in Azure DevOps
+    trigger:
+      branches:
+      - main
+
+pool:
+  name: Default-Linux
+
+variables:
+- group: veracode-settings
+- name: BuildConfiguration
+  value: 'Debug'   # Veracode recommends submitting non-optimized Debug configuration
+- name: sandboxName
+  value: 'E2E.Supply.WebApiHelloWorldService' # use project name
+- name: RestoreBuildProjects
+  value: 'src/**/*.csproj'
+
+steps:
+- task: gitversion/setup@0
+  displayName: Install GitVersion
+  inputs:
+    versionSpec: '5.x'
+    
+- task: gitversion/execute@0
+  displayName: Execute GitVersion
+  
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '$(RestoreBuildProjects)'
+    zipAfterPublish: true
+    arguments: '-c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)'
+    feedsToUse: 'select'
+    feedRestore: 'ASI-RD-PACKAGES'
+    includeNuGetOrg: false
+
+# Set the veracodeScanNumber to be current time tick so it is unique every time
+- bash: echo "##vso[task.setvariable variable=veracodeScanNumber;]$(date +%s)"
+
+- task: Veracode@3
+  inputs:
+    ConnectionDetailsSelection: 'Credentials'
+    apiId: $(veracode.id)
+    apiKey: $(veracode.key)
+    veracodeAppProfile: 'DSX'
+    version: '$(sandboxName)-$(Build.BuildNumber)-$(veracodeScanNumber)'
+    filepath: '$(build.artifactstagingdirectory)'
+    sandboxName: $(sandboxName)
+    importResults: false
+    createSandBox: true

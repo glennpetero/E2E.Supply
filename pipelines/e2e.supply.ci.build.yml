@@ -1,0 +1,98 @@
+# (c) American Software, Inc. All rights reserved.
+#
+# E2E.Supply continuous integration build pipeline
+#
+# This pipeline is triggered on commits to issue/* and main branches
+#
+# Steps in this pipeline:
+# 1. Installs and executes gitversion pipeline task used to set the version properties for this build
+# 2. Ensures the .net 60 sdk is used for builds
+# 3. Restores nuget dependencies for projects referenced in the solution file
+# 4. Performs the build for the solution file
+# 5. Runs dotnet test on the solution file to execute any tests found; creates the code coverage report 
+# 6. Publishes the code coverage report
+# 7. Publishes the test results
+# 8. Publishes projects found in the solution file
+# 9. Pushes all published items into the build artifacts 
+#
+
+trigger:
+- main
+- issue/*
+- rel/*
+
+pool:
+  name: Default-Linux
+
+variables:
+  buildConfiguration: 'Release'
+  SolutionFile: 'E2E.Supply.sln'
+  PublishProjects: 'src/**/*.csproj'
+
+steps:
+- task: gitversion/setup@0
+  displayName: Install GitVersion
+  inputs:
+    versionSpec: '5.x'
+- task: gitversion/execute@0
+  displayName: Execute GitVersion
+
+- task: UseDotNet@2
+  displayName: 'Use .net 6 sdk'
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.x'
+    includePreviewVersions: false
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '$(SolutionFile)'
+    feedsToUse: 'select'
+    feedRestore: 'ASI-RD-PACKAGES'
+    includeNuGetOrg: false
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '$(SolutionFile)'
+    arguments: '--configuration $(BuildConfiguration) --no-restore'
+
+- task: DotNetCoreCLI@2
+  displayName: Test and create code coverage
+  inputs:
+    command: test
+    projects: '$(SolutionFile)'
+    arguments: '--configuration $(BuildConfiguration) --no-build --no-restore --logger trx --collect:"XPlat Code Coverage" /p:CoverletOutputFormat=cobertura --results-directory "$(System.DefaultWorkingDirectory)\TestResults"'
+    publishTestResults: false
+
+- task: PublishCodeCoverageResults@1
+  displayName: "Publish code coverage results"
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/TestResults/**/In/**/coverage.cobertura.xml'    
+
+- task: PublishTestResults@2
+  displayName: "Publish test results"
+  inputs:
+    failTaskOnFailedTests: true
+    searchFolder: $(System.DefaultWorkingDirectory)/TestResults
+    testResultsFiles: '*.trx'
+    testResultsFormat: VSTest
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: '$(PublishProjects)'
+    arguments: '--configuration $(BuildConfiguration) --no-build --no-restore --output $(build.artifactstagingdirectory)'
+    zipAfterPublish: true
+    modifyOutputPath: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'

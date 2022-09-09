@@ -1,0 +1,90 @@
+# (c) American Software, Inc. All rights reserved.
+#
+# E2E.Supply container image build pipeline
+#
+# This pipeline is triggered on commits to main branch
+#
+# Steps in this pipeline:
+# 1. Installs and executes gitversion pipeline task used to set the version properties for this build
+# 2. Downloads and extracts the pubished artifact from the CI build
+# 3. Builds the container image
+# 4. Pushes the tagged image to the ASI container registry
+#
+# See https://confluence.amsoftware.com/x/sdUW for container naming and tagging standards
+
+pool:
+  name: Default-Linux
+
+trigger: none
+
+resources:
+  pipelines:
+  - pipeline: e2e-supply-ci-build   # Name of the pipeline resource
+    source: 'e2e.supply.ci.build' # Name of the pipeline referenced by the pipeline resource
+    trigger: 
+      branches:
+      - main
+      - rel/*
+
+steps:
+- task: gitversion/setup@0
+  displayName: Install GitVersion
+  inputs:
+    versionSpec: '5.x'
+    
+- task: gitversion/execute@0
+  displayName: Execute GitVersion
+  
+- task: DownloadPipelineArtifact@2
+  displayName: 'Download Pipeline Artifact'
+  inputs:
+    source: specific
+    project: 'RD-PRODUCT'
+    pipeline: -1
+    runVersion: latestFromBranch
+    runBranch: '$(Build.SourceBranch)'
+
+- task: ExtractFiles@1
+  displayName: 'Extract files'
+  inputs:
+    archiveFilePatterns: '$(Pipeline.Workspace)/drop/Supply.WebApiHelloWorldService.zip'
+    destinationFolder: '$(Build.Repository.LocalPath)/src/Supply.WebApiHelloWorldService/bin/Release/net6.0/publish/'
+    cleanDestinationFolder: true
+
+- task: Docker@2
+  displayName: "Build image"
+  inputs:
+    command: 'build'
+    Dockerfile: 'docker/WebApiHelloWorldService.linux.Dockerfile'
+    arguments: '--build-arg branch=$(Build.SourceBranch) --build-arg commit=$(Build.SourceVersion) --build-arg version=$(GitVersion.FullSemVer) --build-arg build=$(GitVersion.FullBuildMetaData)'
+    containerRegistry: 'asidev registry'
+    repository: e2e/supply/webapihelloworld
+    # We don't create or push a separate MajorMinorPatch because we only push on main and
+    # main SemVer is always equal to MajorMinorPatch as main has no pre-release
+    tags: |
+      $(GitVersion.SemVer)-build.$(GitVersion.BuildMetaData)-linux
+      latest
+    buildContext: $(Build.SourcesDirectory)
+
+# Push the release containers (except build-specific) to Azure (only on main branch)
+# Push the build-specific container to Azure (on main branch or if PushIssueBranchToAcr is true)
+
+- task: Docker@2
+  displayName: "Push image to ACR"
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  inputs:
+    command: 'push'
+    containerRegistry: 'asidev registry'
+    repository: e2e/supply/webapihelloworld
+    tags: |
+      latest
+
+- task: Docker@2
+  condition: and(succeeded(), or(eq(variables['PushIssueBranchToAcr'], 'true'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/rel/')))
+  displayName: "Push branch image to ACR"
+  inputs:
+    command: 'push'
+    containerRegistry: 'asidev registry'
+    repository: e2e/supply/webapihelloworld
+    tags: |
+      $(GitVersion.SemVer)-build.$(GitVersion.BuildMetaData)-linux
